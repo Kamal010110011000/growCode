@@ -8,9 +8,9 @@ import com.growCode.growCode.repo.otpRepository;
 import com.growCode.growCode.repo.userRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class OtpService {
 
     @Autowired

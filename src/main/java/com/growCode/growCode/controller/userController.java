@@ -3,6 +3,7 @@ package com.growCode.growCode.controller;
 import java.util.ArrayList;
 
 import com.growCode.growCode.entity.AuthenticationResonse;
+import com.growCode.growCode.entity.Dashboard;
 import com.growCode.growCode.entity.Otp;
 import com.growCode.growCode.entity.User;
 import com.growCode.growCode.exceptions.NotFoundException;
@@ -11,6 +12,7 @@ import com.growCode.growCode.responses.NotFoundResponse;
 import com.growCode.growCode.responses.OkResponse;
 import com.growCode.growCode.responses.Response;
 import com.growCode.growCode.responses.ServerErrorResponse;
+import com.growCode.growCode.services.DashboardService;
 import com.growCode.growCode.services.JwtUtil;
 import com.growCode.growCode.services.OtpService;
 import com.growCode.growCode.services.userServices;
@@ -19,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,9 @@ public class userController {
 
     @Autowired
     private JwtUtil jwtToken;
+
+    @Autowired
+    private DashboardService dashboardService;
 
     @PostMapping("/create")
     public ResponseEntity<Response> saveUser(@RequestBody User user){
@@ -69,13 +73,7 @@ public class userController {
     @GetMapping("/me")
     public ResponseEntity<Response> getProfile(){
         try {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String email = null;
-            if(principal instanceof UserDetails){
-                email = ((UserDetails)principal).getUsername();
-            }else{
-                email = principal.toString();
-            }
+            String email = uServices.getUserName();
             User user = uServices.getByEmail(email);
             return ResponseEntity.ok().body(new OkResponse<User>(user));
         } catch (Exception e) {
@@ -123,6 +121,15 @@ public class userController {
         }
     }
 
-
+    @GetMapping("/dashboard")
+    public ResponseEntity<Response> getDashboard(){
+        try {
+            String email = uServices.getUserName();
+            Dashboard dashboard = dashboardService.myDashboard(email);
+            return new ResponseEntity<>(new OkResponse<Dashboard>(dashboard), null, 200);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ServerErrorResponse(e), null, 500);
+        }
+    }
     
 }
